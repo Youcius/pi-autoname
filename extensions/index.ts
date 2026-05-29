@@ -25,6 +25,7 @@ interface AutonameConfig {
   fallbackModels?: string[]; // additional models to try before session model
   cooldownMinutes?: number; // minutes between periodic renames (default: 10)
   debug?: boolean; // enable debug logging
+  locale?: string; // force locale: "zh", "en", "ja", "ko" — overrides env detection
 }
 
 const CONFIG_PATH = join(homedir(), ".pi", "agent", "pi-autoname.json");
@@ -203,8 +204,9 @@ async function generateAIName(
   const modelId = model?.provider + '/' + model?.id;
   debugLog('generateAIName called with model:', modelId);
   debugLog('dialogue parts count:', parts.length);
-  const locale = process.env.PI_LOCALE || process.env.LC_ALL || process.env.LANG || "";
-  const langHint = locale.startsWith("zh")
+  const config = loadConfig();
+  const locale = config.locale || process.env.PI_LOCALE || process.env.LC_ALL || process.env.LANG || "";
+  const langHint = locale === "zh" || locale.startsWith("zh")
     ? "用中文（简体）输出名称"
     : locale.startsWith("ja")
       ? "日本語で出力"
